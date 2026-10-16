@@ -87,9 +87,83 @@ a {
   color: #1859a0;
 }
 
-a:focus-visible {
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
   outline: 3px solid #f59e0b;
   outline-offset: 3px;
+}
+
+.form-page {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.form-note,
+small {
+  color: #4b5563;
+  font-size: 14px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 16px;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #6b7280;
+  border-radius: 4px;
+  font: inherit;
+}
+
+small {
+  margin-top: 6px;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 4px;
+  color: white;
+  background-color: #1859a0;
+  font: inherit;
+  cursor: pointer;
+}
+
+form button {
+  margin-top: 24px;
+}
+
+button:hover {
+  background-color: #12447c;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.error-message {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.success-message {
+  color: #166534;
+  background-color: #dcfce7;
 }
 
 .notice {

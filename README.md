@@ -9,13 +9,20 @@ A React application for exploring events and managing personal event registratio
 
 ## Current progress
 
-The project foundation is ready:
+Completed so far:
 
 - React setup with a shared navigation bar and simple responsive CSS.
 - Routes for Events, Event Details, Login, Register, My Events, and Page Not Found.
 - Redux store connected to the app, with an initial guest authentication state.
+- Account registration with name, email, and password validation, duplicate-email checks, and saved local accounts.
 
-These pages are placeholders. Event fetching, forms, login persistence, protected routes, event registration, and cancellation are not implemented yet. Redux actions and the remaining shared state will be added with those features.
+Login, logout, session persistence, real event fetching, protected routes, event registration, and cancellation are not implemented yet. The corresponding pages remain placeholders. Redux actions and the remaining shared state will be added with those features.
+
+## Demo account registration
+
+Open Register and enter a name, a valid email address, and a sample password with at least six characters. Names are trimmed, and email addresses are trimmed and converted to lowercase. Duplicate email addresses are rejected.
+
+Accounts are saved only in this browser's Local Storage. The saved record contains a SHA-256 password hash rather than the entered password. This is a frontend class-project simulation, not production authentication; use dummy credentials. Creating an account does not sign the user in. Login will be added next.
 
 ## Technologies
 
@@ -60,6 +67,14 @@ npm run preview
 
 The build is created in the ignored `dist` folder.
 
+## Checks
+
+```bash
+npm test
+```
+
+The account checks cover validation, normalized and overlapping duplicate registrations, separate accounts, malformed saved data, and storage failures.
+
 ## Project structure
 
 ```text
@@ -73,10 +88,11 @@ src/
     MyEvents.jsx
     NotFound.jsx
   slices/authSlice.js
+  utils/accounts.js
   App.jsx
   main.jsx
   store.js
   styles.css
 ```
 
-`main.jsx` connects React, Redux, and the router. `App.jsx` defines the routes. Each page has its own component. `store.js` sets up the shared state, and `authSlice.js` will manage the signed-in user.
+`main.jsx` connects React, Redux, and the router. `App.jsx` defines the routes. Each page has its own component. `store.js` sets up the shared state, and `authSlice.js` will manage the signed-in user. `accounts.js` validates and saves demo accounts.
