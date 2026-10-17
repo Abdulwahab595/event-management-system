@@ -13,16 +13,20 @@ Completed so far:
 
 - React setup with a shared navigation bar and simple responsive CSS.
 - Routes for Events, Event Details, Login, Register, My Events, and Page Not Found.
-- Redux store connected to the app, with an initial guest authentication state.
+- Redux authentication state, with login/logout actions and the signed-in user's name in the navigation bar.
 - Account registration with name, email, and password validation, duplicate-email checks, and saved local accounts.
+- Login with saved accounts, session persistence after refresh, and logout that removes the saved session.
+- My Events requires login and returns the user there after signing in.
 
-Login, logout, session persistence, real event fetching, protected routes, event registration, and cancellation are not implemented yet. The corresponding pages remain placeholders. Redux actions and the remaining shared state will be added with those features.
+Real event fetching, event registration, cancellation, and personal event lists are not implemented yet. The event pages remain placeholders.
 
 ## Demo account registration
 
 Open Register and enter a name, a valid email address, and a sample password with at least six characters. Names are trimmed, and email addresses are trimmed and converted to lowercase. Duplicate email addresses are rejected.
 
-Accounts are saved only in this browser's Local Storage. The saved record contains a SHA-256 password hash rather than the entered password. This is a frontend class-project simulation, not production authentication; use dummy credentials. Creating an account does not sign the user in. Login will be added next.
+Accounts are saved only in this browser's Local Storage. The saved record contains a SHA-256 password hash rather than the entered password. This is a frontend class-project simulation, not production authentication; use dummy credentials. Creating an account does not sign the user in; use Login afterward.
+
+Login checks the saved email and password, remembers the account ID in Local Storage, and updates Redux with the user's ID, name, and email. On refresh, the store restores that profile from the saved accounts. Logout removes the remembered ID and clears the Redux user. Passwords and hashes are never placed in Redux. Missing or unreadable saved session data starts the app as a guest. Storage failures during login or logout show an error instead of claiming success.
 
 ## Technologies
 
@@ -73,13 +77,17 @@ The build is created in the ignored `dist` folder.
 npm test
 ```
 
-The account checks cover validation, normalized and overlapping duplicate registrations, separate accounts, malformed saved data, and storage failures.
+The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, and storage failures.
+
+Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Browser interaction and visual checks are still pending.
 
 ## Project structure
 
 ```text
 src/
-  components/Navbar.jsx
+  components/
+    Navbar.jsx
+    ProtectedRoute.jsx
   pages/
     Events.jsx
     EventDetails.jsx
@@ -95,4 +103,4 @@ src/
   styles.css
 ```
 
-`main.jsx` connects React, Redux, and the router. `App.jsx` defines the routes. Each page has its own component. `store.js` sets up the shared state, and `authSlice.js` will manage the signed-in user. `accounts.js` validates and saves demo accounts.
+`main.jsx` connects React, Redux, and the router. `App.jsx` defines the routes. Each page has its own component. `store.js` restores the session and sets up shared state. `authSlice.js` manages the signed-in user; storage work stays in `accounts.js`, outside the reducers. `ProtectedRoute.jsx` directs guests to Login.

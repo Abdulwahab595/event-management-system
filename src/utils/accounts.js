@@ -1,4 +1,5 @@
 const accountsKey = 'event-management-accounts';
+const sessionKey = 'event-management-current-user';
 
 export function readAccounts() {
   try {
@@ -23,11 +24,15 @@ export function readAccounts() {
 }
 
 async function hashPassword(password) {
-  const data = new TextEncoder().encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map((value) => value.toString(16).padStart(2, '0'))
-    .join('');
+  try {
+    const data = new TextEncoder().encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+      .map((value) => value.toString(16).padStart(2, '0'))
+      .join('');
+  } catch {
+    throw new Error('Password processing failed. Open the app on localhost or HTTPS and try again.');
+  }
 }
 
 export async function registerAccount({ name, email, password }) {
@@ -44,13 +49,7 @@ export async function registerAccount({ name, email, password }) {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  let passwordHash;
-
-  try {
-    passwordHash = await hashPassword(password);
-  } catch {
-    throw new Error('Password processing failed. Open the app on localhost or HTTPS and try again.');
-  }
+  const passwordHash = await hashPassword(password);
 
   // Read after hashing so another completed registration is included.
   const accounts = readAccounts();
@@ -73,4 +72,46 @@ export async function registerAccount({ name, email, password }) {
   }
 
   return { id: account.id, name: account.name, email: account.email };
+}
+
+export async function loginAccount({ email, password }) {
+  if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    throw new Error('Please enter a valid email address.');
+  }
+  if (typeof password !== 'string' || !password.trim()) {
+    throw new Error('Please enter your password.');
+  }
+
+  const passwordHash = await hashPassword(password);
+  const account = readAccounts().find((saved) => saved.email === email.trim().toLowerCase());
+  if (!account || account.passwordHash !== passwordHash) {
+    throw new Error('Email or password is incorrect.');
+  }
+
+  try {
+    localStorage.setItem(sessionKey, account.id);
+  } catch {
+    throw new Error('Login could not be saved. Allow browser storage and try again.');
+  }
+  return { id: account.id, name: account.name, email: account.email };
+}
+
+export function readCurrentUser() {
+  try {
+    const id = localStorage.getItem(sessionKey);
+    if (!id) return null;
+    const account = readAccounts().find((saved) => saved.id === id);
+    return account ? { id: account.id, name: account.name, email: account.email } : null;
+  } catch {
+    // Missing or unreadable saved data starts the app as a guest.
+    return null;
+  }
+}
+
+export function logoutAccount() {
+  try {
+    localStorage.removeItem(sessionKey);
+  } catch {
+    throw new Error('Logout could not be saved. Allow browser storage and try again.');
+  }
 }

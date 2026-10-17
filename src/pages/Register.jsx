@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { useSelector } from 'react-redux';
+import { Link, Navigate, useLocation } from 'react-router';
 import { registerAccount } from '../utils/accounts';
 
 function Register() {
@@ -9,6 +10,8 @@ function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const currentUser = useSelector((state) => state.auth.currentUser);
+  const location = useLocation();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -30,6 +33,8 @@ function Register() {
       setSubmitting(false);
     }
   }
+
+  if (currentUser) return <Navigate to="/events" replace />;
 
   return (
     <section className="page form-page">
@@ -81,7 +86,7 @@ function Register() {
         </button>
       </form>
 
-      <p>Already have an account? <Link to="/login">Login</Link></p>
+      <p>Already have an account? <Link to="/login" state={location.state}>Login</Link></p>
     </section>
   );
 }
