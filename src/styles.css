@@ -203,6 +203,88 @@ footer {
   border-top: 1px solid #d1d5db;
 }
 
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.event-card {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.event-image,
+.image-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.image-placeholder {
+  display: grid;
+  place-items: center;
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.event-card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.event-card h2 {
+  margin: 4px 0;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.event-card .button-link {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.event-category {
+  margin: 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.refresh-button {
+  margin-top: 24px;
+}
+
+.event-details {
+  margin-top: 24px;
+  overflow-wrap: anywhere;
+}
+
+.event-details .event-image,
+.event-details .image-placeholder {
+  max-width: 720px;
+}
+
+dt {
+  margin-top: 16px;
+  font-weight: bold;
+}
+
+dd {
+  margin-left: 0;
+}
+
+.event-description {
+  white-space: pre-line;
+}
+
 @media (max-width: 600px) {
   .nav-container {
     align-items: flex-start;
@@ -216,5 +298,9 @@ footer {
 
   h1 {
     font-size: 24px;
+  }
+
+  .event-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -17,8 +17,11 @@ Completed so far:
 - Account registration with name, email, and password validation, duplicate-email checks, and saved local accounts.
 - Login with saved accounts, session persistence after refresh, and logout that removes the saved session.
 - My Events requires login and returns the user there after signing in.
+- Ticketmaster browsing shows the next 12 scheduled upcoming events, sorted by date, with category labels and reusable cards.
+- Individual details load by event ID, including on a direct URL, with date/time, venue, location, category, image and available description, status, prices and official link.
+- Redux keeps listing and detail request states separate. Pages show loading, retry, empty and missing-information messages.
 
-Real event fetching, event registration, cancellation, and personal event lists are not implemented yet. The event pages remain placeholders.
+Search, filters, pagination, event registration, cancellation, and personal event lists are not implemented yet. My Events remains a placeholder after login.
 
 ## Demo account registration
 
@@ -35,7 +38,7 @@ Login checks the saved email and password, remembers the account ID in Local Sto
 - React Router
 - Vite
 - Plain CSS
-- Ticketmaster Discovery API (integration pending)
+- Ticketmaster Discovery API
 
 ## Run locally
 
@@ -58,9 +61,13 @@ Use Node.js 24 (tested with 24.21.0) and npm.
 
 ## API key
 
-The current foundation runs without an API key. When the event integration is added, create an account at the [Ticketmaster Developer Portal](https://developer.ticketmaster.com/) and obtain a Discovery API key.
+Create an account at the [Ticketmaster Developer Portal](https://developer.ticketmaster.com/) and obtain a Discovery API key (Consumer Key). Event browsing requires this key; local demo accounts can work without it.
 
 Copy `.env.example` to `.env` and place your key after `VITE_TICKETMASTER_API_KEY=`. Do not commit `.env` or put a real key in this README. Environment variables keep the key out of the repository; a browser-used key is still visible in browser requests.
+
+Restart the development server after changing `.env`. The app uses `/discovery/v2/events.json` for upcoming events and `/discovery/v2/events/{id}.json` for details. Requests start at least 600 ms apart within this app instance, following the assignment's two-per-second limit. The account quota is shared across browser tabs and other uses of the key. Failed requests can be retried; a 15-second timeout avoids an endless loading state. If authorization fails, check the Consumer Key and its approval in the developer portal.
+
+Dates and times are shown in the event's local timezone without converting them to the viewer's timezone. Unknown dates/times are labelled as unconfirmed. The upcoming query uses the current UTC time. Descriptions are displayed as plain text. Loading a different detail page ignores late responses from the previous event.
 
 ## Production build
 
@@ -77,9 +84,9 @@ The build is created in the ignored `dist` folder.
 npm test
 ```
 
-The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, and storage failures.
+The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, uncertain schedules, duplicate event requests and late detail responses.
 
-Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Browser interaction and visual checks are still pending.
+Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Check event cards, open a detail page, refresh that direct URL and use Back to events. Repeat at a narrow window width. Automated checks do not establish browser navigation or responsive layout.
 
 ## Project structure
 
@@ -88,6 +95,8 @@ src/
   components/
     Navbar.jsx
     ProtectedRoute.jsx
+    EventCard.jsx
+    EventImage.jsx
   pages/
     Events.jsx
     EventDetails.jsx
@@ -95,8 +104,13 @@ src/
     Register.jsx
     MyEvents.jsx
     NotFound.jsx
-  slices/authSlice.js
-  utils/accounts.js
+  services/ticketmaster.js
+  slices/
+    authSlice.js
+    eventsSlice.js
+  utils/
+    accounts.js
+    eventData.js
   App.jsx
   main.jsx
   store.js
