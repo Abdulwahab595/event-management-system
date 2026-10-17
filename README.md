@@ -17,11 +17,13 @@ Completed so far:
 - Account registration with name, email, and password validation, duplicate-email checks, and saved local accounts.
 - Login with saved accounts, session persistence after refresh, and logout that removes the saved session.
 - My Events requires login and returns the user there after signing in.
-- Ticketmaster browsing shows the next 12 scheduled upcoming events, sorted by date, with category labels and reusable cards.
+- Ticketmaster browsing shows scheduled upcoming events, sorted by date, with category labels and reusable cards.
+- Search by keyword and combine city, category and country filters. Search applies the form together; Clear filters restores all upcoming events.
+- Previous/Next navigation shows 20 events per page and retains the applied filters when opening details and returning.
 - Individual details load by event ID, including on a direct URL, with date/time, venue, location, category, image and available description, status, prices and official link.
 - Redux keeps listing and detail request states separate. Pages show loading, retry, empty and missing-information messages.
 
-Search, filters, pagination, event registration, cancellation, and personal event lists are not implemented yet. My Events remains a placeholder after login.
+Event registration, cancellation, and personal event lists are not implemented yet. My Events remains a placeholder after login.
 
 ## Demo account registration
 
@@ -69,6 +71,10 @@ Restart the development server after changing `.env`. The app uses `/discovery/v
 
 Dates and times are shown in the event's local timezone without converting them to the viewer's timezone. Unknown dates/times are labelled as unconfirmed. The upcoming query uses the current UTC time. Descriptions are displayed as plain text. Loading a different detail page ignores late responses from the previous event.
 
+Search uses the API's `keyword`, `city`, `segmentName`, and `countryCode` parameters together. Blank fields are omitted. The country dropdown offers common markets; All countries leaves the location unrestricted. Typing does not make requests until Search is pressed. Applied filters and pagination are kept in Redux during navigation; a browser refresh starts a fresh search.
+
+New searches and Refresh events start on page 1 with a fresh upcoming-time boundary. Paging keeps that boundary fixed. Older search responses are ignored after filters change. The [Discovery API paging limit](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) restricts this app to the first 1,000 matches (50 pages); narrow the filters for more specific results.
+
 ## Production build
 
 ```bash
@@ -84,9 +90,9 @@ The build is created in the ignored `dist` folder.
 npm test
 ```
 
-The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, uncertain schedules, duplicate event requests and late detail responses.
+The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, uncertain schedules, combined search parameters, page boundaries, filter resets, duplicate requests and late search/detail responses.
 
-Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Check event cards, open a detail page, refresh that direct URL and use Back to events. Repeat at a narrow window width. Automated checks do not establish browser navigation or responsive layout.
+Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Check event cards, open a detail page, refresh that direct URL and use Back to events. Search for jazz in New York with Music and United States selected, try Next/Previous, clear the filters and try a no-match keyword. Repeat at a narrow window width. Automated checks do not establish browser navigation or responsive layout.
 
 ## Project structure
 
@@ -97,6 +103,7 @@ src/
     ProtectedRoute.jsx
     EventCard.jsx
     EventImage.jsx
+    EventFilters.jsx
   pages/
     Events.jsx
     EventDetails.jsx
@@ -111,6 +118,7 @@ src/
   utils/
     accounts.js
     eventData.js
+    eventSearch.js
   App.jsx
   main.jsx
   store.js

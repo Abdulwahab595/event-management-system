@@ -97,7 +97,8 @@ a {
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 3px solid #f59e0b;
   outline-offset: 3px;
 }
@@ -124,12 +125,14 @@ label {
   font-weight: bold;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 10px;
   border: 1px solid #6b7280;
   border-radius: 4px;
   font: inherit;
+  background-color: white;
 }
 
 small {
@@ -156,7 +159,7 @@ button:hover {
 
 button:disabled {
   opacity: 0.65;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
 .message {
@@ -207,6 +210,45 @@ footer {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
+}
+
+.search-form {
+  margin: 24px 0;
+  padding: 20px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+}
+
+.filter-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.filter-field label {
+  display: block;
+  margin-top: 0;
+}
+
+.filter-actions,
+.pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.filter-actions button {
+  margin-top: 0;
+}
+
+.secondary-button {
+  background-color: #4b5563;
+}
+
+.secondary-button:hover {
+  background-color: #374151;
 }
 
 .event-card {
@@ -300,7 +342,8 @@ dd {
     font-size: 24px;
   }
 
-  .event-grid {
+  .event-grid,
+  .filter-fields {
     grid-template-columns: 1fr;
   }
 }

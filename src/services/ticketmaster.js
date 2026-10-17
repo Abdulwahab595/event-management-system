@@ -1,4 +1,5 @@
 import { formatEvent } from '../utils/eventData.js';
+import { buildEventQuery, MAX_PAGES, PAGE_SIZE } from '../utils/eventSearch.js';
 
 const baseUrl = 'https://app.ticketmaster.com/discovery/v2';
 let nextRequest = Promise.resolve();
@@ -35,15 +36,20 @@ async function request(path, parameters = {}) {
   }
 }
 
-export async function getEvents() {
-  const data = await request('/events.json', {
-    size: '12',
-    sort: 'date,asc',
-    startDateTime: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
-  });
+export async function getEvents(search = {}) {
+  const query = buildEventQuery(search);
+  const data = await request('/events.json', query);
   const events = data._embedded?.events || [];
   if (!Array.isArray(events)) throw new Error('The event list could not be read. Please try again.');
-  return events.filter((event) => event && typeof event.id === 'string').map(formatEvent);
+  const items = events.filter((event) => event && typeof event.id === 'string').map(formatEvent);
+  const totalElements = Number.isInteger(data.page?.totalElements) && data.page.totalElements >= 0
+    ? data.page.totalElements : items.length;
+  return {
+    items,
+    totalElements,
+    totalPages: Math.min(MAX_PAGES, Math.ceil(totalElements / PAGE_SIZE)),
+    startDateTime: query.startDateTime,
+  };
 }
 
 export async function getEventDetails(id) {
