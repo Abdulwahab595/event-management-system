@@ -38,6 +38,9 @@ const eventsSlice = createSlice({
     details: { eventId: null, item: null, status: 'idle', error: '', requestId: null },
   },
   reducers: {
+    clearEventDetails(state) {
+      state.details = { eventId: null, item: null, status: 'idle', error: '', requestId: null };
+    },
     applyFilters(state, action) {
       state.filters = cleanFilters(action.payload);
       state.page = 0;
@@ -103,5 +106,5 @@ const eventsSlice = createSlice({
   },
 });
 
-export const { applyFilters, changePage, refreshResults } = eventsSlice.actions;
+export const { applyFilters, changePage, refreshResults, clearEventDetails } = eventsSlice.actions;
 export default eventsSlice.reducer;

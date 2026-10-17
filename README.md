@@ -23,7 +23,28 @@ Completed so far:
 - Individual details load by event ID, including on a direct URL, with date/time, venue, location, category, image and available description, status, prices and official link.
 - Redux keeps listing and detail request states separate. Pages show loading, retry, empty and missing-information messages.
 
-Event registration, cancellation, and personal event lists are not implemented yet. My Events remains a placeholder after login.
+- Signed-in users can register once per event, receive feedback and cancel their own registrations.
+- My Events shows only the current user's records, grouped by upcoming/current, completed, unconfirmed, or cancelled/postponed status.
+- Registrations survive refresh and logout. Opening or refreshing event details updates the saved schedule when storage is available.
+
+## Event registration rules
+
+These are local demo registrations, not Ticketmaster bookings or issued tickets. A user can register for an event with a confirmed future start time. Cancelled, postponed, uncertain-start and already-started events cannot accept new registrations. Ticket sale status does not determine availability of this app's local registrations.
+
+The app checks the signed-in user and duplicates in the registration action as well as showing the correct controls. Different users may register for the same event. Cancellation removes only the signed-in user's record and allows registration again while the event remains eligible. Completed records stay in history; upcoming, current, uncertain and cancelled/postponed records can be cancelled.
+
+Registrations are saved separately from accounts and sessions in Local Storage. Each record contains the user ID, registration time and a small event snapshot. Logout preserves these records. A failed save leaves Redux unchanged and shows an error. Invalid saved data is reported instead of silently overwritten. If browser storage is temporarily unavailable, restore access and use the retry control in My Events. Use the same browser and local address for the demo; different origins or cleared browser data have separate or empty records. This is a single-browser frontend simulation, without server-backed accounts or automatic cross-tab synchronisation.
+
+My Events uses saved information so it still works if the API is unavailable. Open the event and choose Refresh details to check for changes. A successful detail load updates saved copies for that event without changing their owners or registration times. There is no background polling for schedule changes.
+
+Completion rules use the [Discovery API's event date fields](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/):
+
+- A valid end timestamp marks the event completed when that time is reached. Approximate end times are labelled as estimates.
+- Without an end timestamp, completion is estimated only after the final known event-local calendar date has passed. The final date is the end date if provided, or the start date for a single-day event.
+- A multi-day event without a known end stays unconfirmed after its start day. Missing or invalid timezones are not replaced by the viewer's timezone.
+- Cancelled/postponed events have their own section; unknown dates stay unconfirmed. A start time alone does not prove completion.
+
+These groupings describe the schedule, not attendance. The display checks the clock every 30 seconds; registration and cancellation also recheck eligibility when clicked.
 
 ## Demo account registration
 
@@ -90,9 +111,11 @@ The build is created in the ignored `dist` folder.
 npm test
 ```
 
-The checks cover account validation, duplicate registrations, valid and invalid login, account switching, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, uncertain schedules, combined search parameters, page boundaries, filter resets, duplicate requests and late search/detail responses.
+The checks cover account validation, duplicate accounts and event registrations, valid and invalid login, account switching and ownership, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, start/end and timezone boundaries, uncertain schedules, saved schedule updates, combined search parameters, page boundaries, filter resets, duplicate requests and late search/detail responses.
 
 Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Check event cards, open a detail page, refresh that direct URL and use Back to events. Search for jazz in New York with Music and United States selected, try Next/Previous, clear the filters and try a no-match keyword. Repeat at a narrow window width. Automated checks do not establish browser navigation or responsive layout.
+
+For registrations: open a future event while logged out, follow Log in to register and check that login returns to that event. Register, open My Events and refresh. Registering again must not add a second record. Log out and create another dummy account; its My Events should be empty. Register it for the same event, cancel it and sign back into the first account. The first user's registration should remain. Check cancellation from both My Events and event details, and try Refresh details.
 
 ## Project structure
 
@@ -104,6 +127,8 @@ src/
     EventCard.jsx
     EventImage.jsx
     EventFilters.jsx
+    RegistrationActions.jsx
+  hooks/useNow.js
   pages/
     Events.jsx
     EventDetails.jsx
@@ -115,10 +140,13 @@ src/
   slices/
     authSlice.js
     eventsSlice.js
+    registrationsSlice.js
   utils/
     accounts.js
     eventData.js
     eventSearch.js
+    eventTiming.js
+    registrations.js
   App.jsx
   main.jsx
   store.js
@@ -126,3 +154,5 @@ src/
 ```
 
 `main.jsx` connects React, Redux, and the router. `App.jsx` defines the routes. Each page has its own component. `store.js` restores the session and sets up shared state. `authSlice.js` manages the signed-in user; storage work stays in `accounts.js`, outside the reducers. `ProtectedRoute.jsx` directs guests to Login.
+
+`registrationsSlice.js` manages saved event registrations. Its action functions check ownership and save to storage before updating Redux. `eventTiming.js` contains the shared date rules used by both details and My Events.

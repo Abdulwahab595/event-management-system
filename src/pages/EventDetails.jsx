@@ -1,17 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router';
 import EventImage from '../components/EventImage';
-import { fetchEventDetails } from '../slices/eventsSlice';
+import RegistrationActions from '../components/RegistrationActions';
+import { fetchEventDetails, clearEventDetails } from '../slices/eventsSlice';
+import { updateSavedEvent } from '../slices/registrationsSlice';
 import { eventSchedule } from '../utils/eventData';
 
 function EventDetails() {
   const { eventId } = useParams();
   const details = useSelector((state) => state.events.details);
+  const user = useSelector((state) => state.auth.currentUser);
+  const [saveError, setSaveError] = useState('');
   const dispatch = useDispatch();
   useEffect(() => { dispatch(fetchEventDetails(eventId)); }, [dispatch, eventId]);
   const event = details.eventId === eventId ? details.item : null;
   const loading = details.eventId !== eventId || details.status === 'idle' || details.status === 'loading';
+  useEffect(() => {
+    setSaveError(event ? dispatch(updateSavedEvent(event)) || '' : '');
+  }, [dispatch, event]);
 
   return (
     <section className="page">
@@ -39,7 +46,12 @@ function EventDetails() {
           {event.description && <><h2>About this event</h2><p className="event-description">{event.description}</p></>}
           {event.note && <><h2>Please note</h2><p className="event-description">{event.note}</p></>}
           {event.url && <p><a href={event.url} target="_blank" rel="noopener noreferrer">View on Ticketmaster</a></p>}
-          <p className="notice">Event registration will be added in the next stage.</p>
+          <button type="button" className="secondary-button" onClick={() => {
+            dispatch(clearEventDetails());
+            dispatch(fetchEventDetails(eventId));
+          }}>Refresh details</button>
+          {saveError && <p className="message error-message" role="alert">The latest details are shown, but your saved list could not be updated. {saveError}</p>}
+          <RegistrationActions key={`${event.id}-${user?.id || 'guest'}`} event={event} />
         </div>
       )}
     </section>
