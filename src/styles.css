@@ -54,9 +54,8 @@ nav a {
   text-decoration: none;
 }
 
-nav a:hover,
 nav a.active {
-  background-color: #365577;
+  text-decoration: underline;
 }
 
 .user-status {
@@ -93,14 +92,6 @@ h1 {
 
 a {
   color: #1859a0;
-}
-
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
-  outline: 3px solid #f59e0b;
-  outline-offset: 3px;
 }
 
 .form-page {
@@ -153,10 +144,6 @@ form button {
   margin-top: 24px;
 }
 
-button:hover {
-  background-color: #12447c;
-}
-
 button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
@@ -192,10 +179,6 @@ button:disabled {
   color: white;
   background-color: #1859a0;
   text-decoration: none;
-}
-
-.button-link:hover {
-  background-color: #12447c;
 }
 
 footer {
@@ -245,10 +228,6 @@ footer {
 
 .secondary-button {
   background-color: #4b5563;
-}
-
-.secondary-button:hover {
-  background-color: #374151;
 }
 
 .event-card {
