@@ -105,15 +105,9 @@ npm run preview
 
 The build is created in the ignored `dist` folder.
 
-## Checks
+## Browser walkthrough
 
-```bash
-npm test
-```
-
-The checks cover account validation, duplicate accounts and event registrations, valid and invalid login, account switching and ownership, Redux state, refresh restoration, logout, malformed saved data, storage failures, event field fallbacks, start/end and timezone boundaries, uncertain schedules, saved schedule updates, combined search parameters, page boundaries, filter resets, duplicate requests and late search/detail responses.
-
-Manual browser check: create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Check event cards, open a detail page, refresh that direct URL and use Back to events. Search for jazz in New York with Music and United States selected, try Next/Previous, clear the filters and try a no-match keyword. Repeat at a narrow window width. Automated checks do not establish browser navigation or responsive layout.
+Create a dummy account, open My Events as a guest, log in, refresh, then log out and refresh again. The name should remain after the first refresh and the app should require login after logout. Also try an incorrect password. Open an event's details, refresh that direct URL and use Back to events. Search for jazz in New York with Music and United States selected, try Next/Previous, clear the filters and try a no-match keyword. Repeat at a narrow window width.
 
 For registrations: open a future event while logged out, follow Log in to register and check that login returns to that event. Register, open My Events and refresh. Registering again must not add a second record. Log out and create another dummy account; its My Events should be empty. Register it for the same event, cancel it and sign back into the first account. The first user's registration should remain. Check cancellation from both My Events and event details, and try Refresh details.
 
